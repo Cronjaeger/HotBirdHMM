@@ -1,4 +1,4 @@
-# HotBird-HMM
+# HotBirdHMM
 
 A project aiming to develop novel methods for finding recombination hotspots
 with a novel HMM-based approach.
