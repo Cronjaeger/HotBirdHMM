@@ -19,11 +19,11 @@ Joint work w. Berklund, Terkelsen and Hobolth  @BIRC (Aarhus Uni)
     2. Likelihood computation (via forward algorithm) [done]
 
  2. Work on maximum likelihood estimator
-    1. Implement ML estimation of recombination rate [done, but needs improvement]
-    2. Test performance and power of method
-    3. Expore improvements to ML algorithm, if nessecary (e.g. use a Baum–Welch/EM- type algorithm instead of newtonian method currently employed)
+    1. Implement ML estimation of recombination rate [done]
+    2. Test performance and power of method [initial testing done]
+    3. Expore improvements to ML algorithm, if nessecary (e.g. use a Baum–Welch/EM- type algorithm instead of newtonian method currently employed) [currently not under consideration]
 
  3. Search for hotspots
-    1. Implement scanning algorithm
+    1. Implement scanning algorithm [next step]
     2. Test on simulated data
     3. Apply to real data
