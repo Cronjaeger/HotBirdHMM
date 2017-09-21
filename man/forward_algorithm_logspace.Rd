@@ -2,12 +2,13 @@
 % Please edit documentation in R/HMM.R
 \name{forward_algorithm_logspace}
 \alias{forward_algorithm_logspace}
-\title{Forward algorithm}
+\title{Forward algorithm in logspace}
 \usage{
-forward_algorithm_logspace(Y, transition_probs, emission_probs, prior)
+forward_algorithm_logspace(Y, transition_probs, emission_probs, prior,
+  FULL_CHAIN = FALSE)
 }
 \arguments{
-\item{Y}{sequence of observed emissions}
+\item{Y}{sequence of observed 0-1 valued emissions.}
 
 \item{emission_probs}{a vector of emission probabilities. The ith entry is
 interpreted as the probability of Y=1 given X=i.}
@@ -15,15 +16,22 @@ interpreted as the probability of Y=1 given X=i.}
 \item{prior}{a vector encoding the a prior distribution on X0; not X[1], but
 the stete preceding it, i.e. there is no observed emission of the variable X0}
 
+\item{FULL_CHAIN}{logical; if set to true, the full chain of probabilities
+computed is returned (instead of just the last distribution).}
+
 \item{trnasition_probs}{an M-by-M matrix of transition probabilities}
 }
 \value{
-a vector alpha with entries ln( P(X_T = i, Y_1:T = y_1:T) )
-  for i=1...M.
+Depending on the value of FULL_CHAIN, either:
+  * a vector alpha with entries ln( P(X_T = i, Y_1:T = y_1:T) ) for i=1...M
+    for i=1...M (default), or
+  * an M-by-T matrix with entries ln( P(X_t = i, Y_1:t = y_1:t) for
+    i=1...M, t=1...T (if FULL_CHAIN is set to TRUE).
 }
 \description{
 Computes ln( P(X_T = i, Y_1:T = y_1:T) ) for i=1...M, where M is the
-number of hidden states, using the so-called forward-algorithm.
+number of hidden states and Y = (y_1, ... , y_T), using the so-called
+forward-algorithm.
 (cf. e.g. \url{https://en.wikipedia.org/wiki/Forward_algorithm})
 This implementation is more stable than \code{algorithm_logspace}, which is
 otherwise identical, but which does not work in logspace.

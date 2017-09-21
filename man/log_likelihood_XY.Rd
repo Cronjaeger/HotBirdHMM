@@ -32,5 +32,5 @@ a uniform distribution.}
 a single number, corresponding to L(theta,rho|Y)
 }
 \description{
-Compute the "full" likelihood of both emissions (Y) and hidden states (X).
+Compute the "full" log-likelihood of both emissions Y and hidden states X.
 }

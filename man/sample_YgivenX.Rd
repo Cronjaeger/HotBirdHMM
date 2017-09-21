@@ -15,7 +15,7 @@ sample_YgivenX(X, theta, M)
 }
 \value{
 A vector of the same length as \code{X} s.t. Y[i] = 1 with
-  probability \code{mu[X[i]]}.
+probability \code{mu[X[i]]}.
 }
 \description{
 Samples a sequence of binary emissions (Y[i] = 1 is interpreted as,

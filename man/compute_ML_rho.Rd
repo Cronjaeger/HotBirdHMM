@@ -4,7 +4,7 @@
 \alias{compute_ML_rho}
 \title{Maximum likelihood of recombination rate}
 \usage{
-compute_ML_rho(Y, M, theta = NULL, rho0 = 1e-08)
+compute_ML_rho(Y, M, theta = NULL, magnitude_max = 1)
 }
 \arguments{
 \item{Y}{A binary sequence classifying all observed sites as either
@@ -15,14 +15,16 @@ homozygous (encoded Y[i] == 0) or heterozygous (encoded Y[i] == 1)}
 \item{theta}{The mutation rate to be used (defaults to Watterson's
 estimator).}
 
-\item{rho0}{initial guess used as starting point of gradiant-algorithm.}
+\item{magnitude_max}{upper magnitude bound on rho, i.e. magnitude_max = k
+indicates that we firmly believe rho<10^k to be the case; defaults to +1.}
 }
 \value{
 a maximum likelihood estimate of the recombination rate between two
-  sites.
+sites.
 }
 \description{
 Approximate the maximum likelihood estimate of the recombination rate.
-This is done using nlm() for newtonian maximization of the likelihood
-function.
+This is done in two steps (each of which relies on optimize()): one to find
+the approximate scale of rho; followed by a step to find the maximum
+likelihood on that scale.
 }

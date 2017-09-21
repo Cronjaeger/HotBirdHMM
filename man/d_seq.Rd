@@ -12,7 +12,7 @@ integer}
 }
 \value{
 A vector of upper limits of each interval. last element will be
-  \code{Inf}
+\code{Inf}
 }
 \description{
 Compute the sequence of discretization timepoints (cf. Asger's note)

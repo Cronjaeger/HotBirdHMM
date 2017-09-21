@@ -8,8 +8,8 @@ likelihood_Y(Y, M, rho = NULL, theta = NULL, Px = NULL, mu = NULL,
   prior_x0 = NULL)
 }
 \arguments{
-\item{Y}{observed sequence of emissions (1: heterozygous site;
-0: homozygous site).}
+\item{Y}{observed sequence of emissions (1: heterozygous site; 0: homozygous
+site).}
 
 \item{M}{size of hidden statespace; an integer.}
 

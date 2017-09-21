@@ -21,8 +21,8 @@ hidden variables X.}
 }
 \value{
 a list with names “X” and “Y”
-  X is a vector of length \code{L} encoding the hidden states
-  Y is a vector of length \code{L} encoding the emissions.
+X is a vector of length \code{L} encoding the hidden states
+Y is a vector of length \code{L} encoding the emissions.
 }
 \description{
 Samples both hidden states and emissions
