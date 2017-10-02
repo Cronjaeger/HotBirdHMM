@@ -27,7 +27,7 @@
 #-------------------
 #  1.1: Import code
 #-------------------
-source('/home/mathias/programming/hobolth-project/HotBirdHMM/R/from-hobolth/TransMat.R')
+# source('/home/mathias/programming/hobolth-project/HotBirdHMM/R/from-hobolth/TransMat.R')
 # Note: Since I didn't write TransMat.R myself, I have not put it online.
 # Ask Asger if you want the code (maybie I'll add it later should he permit)
 
@@ -234,7 +234,7 @@ sample_XandY <- function(rho,theta,M,L,sample_x0 = NULL){
 
   Y <- sample_YgivenX(X,theta,M)
 
-  return(list(X=X,Y=Y))
+  return(data.frame(X=X,Y=Y))
   }
 
 
