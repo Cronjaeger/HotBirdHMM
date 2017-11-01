@@ -71,7 +71,34 @@ compute_equidistant_breaks <- function(upper, lower = 1, breaks = 2){
   return((find_start_of_runs(cut(lower:upper, breaks, labels = FALSE)) - 1 + lower)[-1])
 }
 
-
+#' Convert data in MS format to raw sequences
+#'
+#' In MS sequences are encoded only by specifying seg. sites (in a matrix where
+#' rows are sequences and collumns are segregating sites) along with a vector
+#' assigning each collumn a position p in the interval [0,1]. This function
+#' converts to a matrix which includes non-segregating sites (the total numebr
+#' of sites has to be manually specified, and is presumed to be known to the
+#' user). Each segregating site is the ninserted at position round(p*sites).
+#'
+#' @param sites the number of total (segregating and non-segregating) sites. The
+#'   output will have this number of columns.
+#' @param position vector a vector of floats between 0 and 1 indicating the
+#'   scaled location of each segregating site.
+#' @param segSiteMatrix A 0-1 matrix where each row is an individual, and each
+#'   column is a site. An entry of 1 in the (i,j)th position indicates that the
+#'   ith individual is segregating at the jth segregating site.
+#' @return A logical (to conserve memmory) matrix with \code{sites} columns and
+#'   the same numebr of rows as \code{segSiteMatrix}.
+#' @export
+ms_out2SeqArray <- function(sites,position_vector,segSiteMatrix){
+  n = nrow(segSiteMatrix)
+  SeqArray <- matrix(data = logical(length = n * sites), nrow = n, ncol = sites)
+  for (seg_index in 1:length(position_vector)){
+    real_index <- round(position_vector[seg_index]*sites)
+    SeqArray[,real_index] <- as.logical(segSiteMatrix[,seg_index])
+  }
+  return(SeqArray)
+}
 
 #----------------------
 # Main functions
