@@ -279,11 +279,17 @@ theta_watterson <- function(s,n,L){
 #' @return log(exp(x[1]) + exp(x[2]) + ... + exp(x[n]))
 #' @export
 log_sum_exp <- function(x){
+  #if(any(is.na(x))) warning("NA values passed")
   #n = length(x)
   xmax <- max(x)
   xmin <- min(x)
   c <- xmax/2 + xmin/2
-  return(c + log(sum(exp(x - c))))
+  result <- c + log(sum(exp(x - c)))
+  if(is.na(result)){
+    #warning("NA values produced in log_sum_exp; using max as upper bound.")
+    result <- max(x)
+  }
+  return(result)
 }
 
 
