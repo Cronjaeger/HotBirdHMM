@@ -87,7 +87,7 @@ is_informative_char <- function(vec, ancestral_state = NULL){
 
 #' Compute the probability of at least one mutation ocurring
 #'
-#' The probability that no mutations occur in a coalescent with n sequences and mutation at constant rate \theta/2 is given by
+#' The probability that no mutations occur in a coalescent with n sequences and mutation at constant rate theta/2 is given by
 #' p_no_mut = (1 / (1+theta)) * (2 / (2+theta)) * ... * (n-1 / (n-1+theta))
 #' This function returns 1 - p_no_mut.
 #'
@@ -276,6 +276,97 @@ compute_marginal_recomb_state <- function(SeqMatrix,
   return(marginal_probs)
 }
 
+#' A fresh approach to finding hotspots.
+#'
+#' We proceed as in compute_marginal_recomb_state,
+#' but we change our choice of emission distribution.
+#' (it is now set to be a geometric distribution with the same mean as the mean finite Z-value)
+#'
+#' @param SeqMatrix the matrix of observed sequences including non-segregating
+#'   sites. Should be encoded as either a 0-1 matrix (1 entries indicating
+#'   derived type and 0 ancestal) or as a boolean TRUE-FALSE matrix.
+#' @param r_normal the recombination rate between two ajacent sites outside
+#'   hotspots (on the timescale of the coalescent, i.e. a rate of 1 indicates
+#'   that recombination-events occur at the same rate as a pairwise
+#'   coalescence-event).
+#' @param r_hot the recombination rate between two ajacent sites inside hotspots
+#'   (on the timescale of the coalescent, i.e. a rate of 1 indicates that
+#'   recombination-events occur at the same rate as a pairwise
+#'   coalescence-event).
+#' @param rate_norm2hot the rate at which the hidden state changes from normal
+#'   recombination to hot. This should be inversely proportional to the expected
+#'   distance between right-boundaries of hotspots.
+#' @param rate_hot2norm the rate at which the hidden state changes from hot to
+#'   normal recombination. This should be inversely proportional to the expected
+#'   length of a hotspot.
+#' @param r_factor Our modell presumes that the time untill an incompatability
+#'   is observed will be geometrically distributed with a mean dependant on
+#'   recombination and mutation rate. Since not all recombinations change the
+#'   topoplogy, and not all mutations (once the topology has changed) cause
+#'   incompatabilities, we scale the mean of this distribution by an arbitrary
+#'   factor to account for this. It is an estimate of rate(topology_changes
+#'   between two sites)/rate(recombination events in the ARG). Giving some
+#'   thought to how to pick this factor may yield improvements.
+#' @param hot_factor the decrease in the expected distance between
+#'   incompatablilties if we are in a hotspot. e.g. if the expected distance
+#'   betrween incompatibilities is 10 times lower inside a hotspot, hot_factor
+#'   should be 0.1.
+#' @return A matrix with two rows and a column per site. Each column corresponds
+#'   to the marginal distribution of the hidden state at that position (under
+#'   the model outlined above and conditioned on the observed haplotypes).
+#' @export
+compute_marginal_recomb_state_empirical_mean <- function(SeqMatrix,
+                                          hot_factor = 0.1,
+                                          rate_norm2hot = 1e-5,
+                                          rate_hot2norm = 1e-3,
+                                          r_factor = 1.0){
+
+  #trnasition matrix: state 1 is normal; state 2 is hot
+  P <- matrix(data = c(1 - rate_norm2hot, rate_hot2norm, rate_norm2hot, 1- rate_norm2hot), nrow = 2, ncol = 2)
+
+  if(r_factor < 1) warning("r_factor < 1 passed. This should not be done!")
+
+  #we chose the invariant distribution of P as the initial distribution
+  alpha0 <- c(rate_hot2norm,rate_norm2hot) / (rate_norm2hot + rate_hot2norm) #
+
+  #We scan both forward and backward
+  emissions <- matrix(
+    data = c(compute_Z(SeqMatrix, dir = 'left'),
+             compute_Z(SeqMatrix, dir = 'right')),
+    ncol = 2
+  )
+
+  n <- nrow(SeqMatrix)
+  sites <- ncol(SeqMatrix)
+
+  # compute parameter for Z ~ geo(p_Z)
+  Z_mean <- mean(emissions, na.rm = TRUE)
+  Z_mean_norm <- Z_mean / (hot_factor * alpha0[2] + alpha0[1])
+  Z_mean_hot <- Z_mean_norm * hot_factor
+
+  p_Z_hot <- 1 / (Z_mean_hot * r_factor + 1)
+  p_Z_normal <- 1 / (Z_mean_norm * r_factor + 1)
+
+  density_Z_given_R <- function(y,x,t){
+    result <- 1.0
+    for(z in y){
+      if (is.na(z)) next # if a value is missing, we do nothing
+      p_Z <- ifelse(x==1, p_Z_normal, p_Z_hot)
+      result <- result*dgeom(z,p_Z)
+    }
+    return(result)
+  }
+
+  log_likelihoods <- forwad_backward_logspace(emissions = emissions,
+                                              alpha0 = alpha0,
+                                              transition_probs = P,
+                                              emission_density = density_Z_given_R)
+
+  marginal_probs <- apply(X=log_likelihoods, MARGIN = 2, FUN = log_probs_2_normalised_probs)
+
+  return(marginal_probs)
+}
+
 #' Compute marginal distribution, given marginal log_likelihoods
 #'
 #' Given log(p1), log(p2), ... , log(pN), return
@@ -283,6 +374,7 @@ compute_marginal_recomb_state <- function(SeqMatrix,
 #'
 #' @param log_vector a vector of log-values x_1, ..., x_N
 #' @return a vector where the kth entry is exp(x_k) / (exp(x_1) + ... + exp(x_N))
+
 log_probs_2_normalised_probs <- function(log_vector){
   return( exp( log_vector - log_sum_exp(log_vector) ) )
 }
